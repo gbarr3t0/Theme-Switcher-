@@ -8,8 +8,12 @@
 
 set -euo pipefail
 
+# --- CONFIGURATION ---
+readonly SCRIPT_SOURCE="themes.sh"
+
 # --- RUNTIME STACK ---
-readonly DEPS=("python-pywal" "swww" "jq" "imagemagick" "wofi" "cava")
+# Adicionado rofi como fallback para sistemas X11
+readonly DEPS=("python-pywal" "swww" "jq" "imagemagick" "wofi" "rofi" "cava")
 
 echo "[BOOTSTRAP] Initializing Universal Environment Check..."
 
@@ -40,7 +44,7 @@ resolve_dependencies() {
     local missing=()
     for item in "${DEPS[@]}"; do
         if ! command -v "$item" &>/dev/null; then
-            # Pequeno fix: No Ubuntu/Debian alguns pacotes tem nomes diferentes
+            # Fix de nomenclatura para base Debian/Ubuntu
             if [[ "$item" == "python-pywal" ]] && command -v apt-get &>/dev/null; then
                 missing+=("python3-pywal")
             else
@@ -54,16 +58,20 @@ resolve_dependencies() {
     else
         echo "[ACTION] Missing components: ${missing[*]}"
         read -p "[PROMPT] Auto-install detected dependencies? [y/N]: " confirm
-        [[ "$confirm" =~ ^[yY]$ ]] && install_logic "${missing[@]}"
+        if [[ "$confirm" =~ ^[yY]$ ]]; then
+            install_logic "${missing[@]}"
+        fi
     fi
 }
 
 main() {
     resolve_dependencies
     
-    if [[ -f "themes-core-alpha.sh" ]]; then
-        chmod +x themes-core-alpha.sh
-        echo "[CHMOD] themes-core-alpha.sh is now executable."
+    if [[ -f "$SCRIPT_SOURCE" ]]; then
+        chmod +x "$SCRIPT_SOURCE"
+        echo "[CHMOD] $SCRIPT_SOURCE is now executable."
+    else
+        echo "[WARNING] Source script $SCRIPT_SOURCE not found in current directory."
     fi
     
     echo "[DONE] Setup finished."
