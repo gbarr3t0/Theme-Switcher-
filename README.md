@@ -1,4 +1,4 @@
-# PLEASE! READDDDD!!!!!!!!!
+# Theme-Switcher-: Dynamic Color & Wallpaper Injection for Linux WMs 
 
 English / Portuguese
 
