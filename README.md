@@ -2,8 +2,9 @@
 
 English / Portuguese
 
+English
 1. Project Overview
-The themes-core Alpha is a modular synchronization engine designed for Linux environments. It implements a centralized "Source of Truth" architecture where an image file is parsed to generate a global Xresources-compliant color palette. This palette is then injected into active process environments, configuration files, and pseudo-terminals (TTY) in real-time.
+The Theme-Switcher- is a modular synchronization engine designed for Linux environments. It implements a centralized "Source of Truth" architecture where an image file is parsed to generate a global Xresources-compliant color palette. This palette is then injected into active process environments, configuration files, and pseudo-terminals (TTY) in real-time.
 
 2. System Logic & Architecture
 The engine operates on a multi-stage execution pipeline:
@@ -20,13 +21,14 @@ TTY Injection: Direct broadcast of escape sequences to all active /dev/pts/ node
 The installation process is handled by a universal bootstrap script that manages dependency resolution across multiple package managers (pacman, apt, dnf, zypper).
 
 Installation Procedure:
+
 Bash
-git clone https://github.com/USER/themes-core-alpha
-cd themes-core-alpha
+git clone https://github.com/gbarr3t0/Theme-Switcher-.git
+cd Theme-Switcher-
 chmod +x install.sh
 ./install.sh
 Filesystem Structure:
-Upon execution, the script initializes a persistent workspace:
+Upon execution, the script initializes a persistent workspace (See STRUCTURE.md for details):
 
 ~/theme_CORE/wallpapers/: Primary ingress directory for source assets.
 
@@ -35,125 +37,84 @@ Upon execution, the script initializes a persistent workspace:
 ~/.config/themes/core_path.ptr: Pointer file for absolute path resolution.
 
 4. Operational Usage
-The engine supports both interactive and automated execution modes.
-
-Interactive Mode:
-Invokes a dynamic menu (Wofi or Rofi) to select assets from the internal wallpaper directory.
+Interactive Mode: Invokes a dynamic menu (Wofi or Rofi) to select assets.
 
 Bash
 ./themes.sh
-CLI Mode:
-Applies a specific theme by passing an absolute path as a positional argument.
+CLI Mode: Applies a specific theme via absolute path.
 
 Bash
 ./themes.sh /path/to/image.png
 5. Subsystem Integration (Dynamic Sync)
-To achieve full ecosystem synchronization, target applications must be configured to reference the generated cache.
+CAVA: Targets the [color] section of ~/.config/cava/config. Enforces gradient = 1 and gradient_count = 2.
 
-CAVA (Audio Visualizer):
-The engine targets the [color] section of ~/.config/cava/config. It enforces gradient = 1 and gradient_count = 2, overwriting hex values with extracted primary and secondary colors.
+Terminal UI: Updates ANSI 0-15 palette via Pywal sequences. Supports Kitty, Alacritty, and Foot.
 
-Terminal UI (Peaclock / TUI):
-Standard TUI tools follow the ANSI 0-15 palette. The engine updates these via Pywal sequences. Ensure your terminal emulator (Kitty, Alacritty, Foot) is configured to allow OSC escape sequence overrides.
+Third-Party:
 
-Third-Party Integration (Vesktop / Spicetify):
-These applications must be configured to track the Pywal cache:
+Vencord: Enable Pywal theme and link to ~/.cache/wal/colors-vencord.css.
 
-Vencord: Enable the Pywal theme and link to ~/.cache/wal/colors-vencord.css.
-
-Spicetify: Apply the Pywal color scheme to map UI elements to the extracted JSON palette.
-
-6. Automation & Macros
-For optimal workflow, map the execution to a global keybinding.
-
-Hyprland Configuration:
-Bash
-bind = SUPER, B, exec, /absolute/path/to/themes.sh
-Sway Configuration:
-Bash
-bindsym $mod+b exec /absolute/path/to/themes.sh
-7. Error Handling & Debugging
-Empty Menu: Verify that assets are present in ~/theme_CORE/wallpapers/.
-
-Permission Denied: Ensure the user has write access to the theme_CORE directory and ~/.config/cava/.
-
-Inconsistent Colors: Check ~/.cache/wal/colors.json to verify if the extraction backend successfully parsed the image.
-
+Spicetify: Apply Pywal color scheme to map UI elements.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Português
 1. Visão Geral do Projeto
-O themes-core Alpha é um motor de sincronização modular projetado para ambientes Linux. Ele implementa uma arquitetura de "Fonte Única de Verdade", onde um arquivo de imagem é processado para gerar uma paleta de cores global compatível com Xresources. Esta paleta é injetada em ambientes de processos ativos, arquivos de configuração e terminais virtuais (TTY) em tempo real.
+O Theme-Switcher- é um motor de sincronização modular para Linux. Ele utiliza uma arquitetura de "Fonte Única de Verdade", onde uma imagem é processada para gerar uma paleta de cores global injetada em processos ativos, arquivos de configuração e terminais (TTY) em tempo real.
 
-2. Lógica do Sistema e Arquitetura
-O motor opera em um pipeline de execução de múltiplos estágios:
+2. Lógica e Arquitetura
+Extração: Análise de cores via Haishoku ou Magick.
 
-Extração: Análise de dados hexadecimais da imagem via backends Haishoku ou Magick.
+Sincronização: Atualiza variáveis de sessão para Wayland (Hyprland/Sway) ou X11.
 
-Sincronização de Ambiente: Atualiza variáveis de sessão para protocolos Wayland (Hyprland/Sway) ou X11.
+Patching Atômico: Manipulação via sed no arquivo do CAVA para contornar limites de cores estáticas.
 
-Patching Atômico: Manipulação direta de arquivos de configuração (CAVA) usando edição de fluxo sed para contornar limitações de cores estáticas.
+Injeção TTY: Transmissão de sequências de escape para todos os /dev/pts/ ativos.
 
-Injeção TTY: Transmissão direta de sequências de escape para todos os nós /dev/pts/ ativos para garantir a persistência das cores no shell.
-
-3. Implantação e Configuração do Ambiente
-O processo de instalação é gerenciado por um script de bootstrap universal que resolve dependências em múltiplos gerenciadores de pacotes (pacman, apt, dnf, zypper).
+3. Instalação e Configuração
+O script de instalação resolve dependências automaticamente em distros baseadas em Arch, Debian, Fedora ou OpenSUSE.
 
 Procedimento de Instalação:
+
 Bash
-git clone https://github.com/USUARIO/themes-core-alpha
-cd themes-core-alpha
+git clone https://github.com/gbarr3t0/Theme-Switcher-.git
+cd Theme-Switcher-
 chmod +x install.sh
 ./install.sh
-Estrutura do Sistema de Arquivos:
-Após a execução, o script inicializa um workspace persistente:
+Estrutura de Arquivos:
+O script inicializa os seguintes diretórios (Detalhes em STRUCTURE.md):
 
-~/theme_CORE/wallpapers/: Diretório primário de entrada para arquivos de imagem.
+~/theme_CORE/wallpapers/: Coloque suas imagens aqui.
 
-~/theme_CORE/cache/: Armazenamento para CSS gerado e metadados.
+~/theme_CORE/cache/: Armazena CSS e metadados.
 
-~/.config/themes/core_path.ptr: Arquivo de ponteiro para resolução de caminhos absolutos.
+~/.config/themes/core_path.ptr: Arquivo de ponteiro para caminhos absolutos.
 
 4. Uso Operacional
-O motor suporta modos de execução interativos e automatizados.
-
-Modo Interativo:
-Invoca um menu dinâmico (Wofi ou Rofi) para selecionar arquivos do diretório interno de wallpapers.
+Modo Interativo: Abre o menu (Wofi ou Rofi) para seleção.
 
 Bash
 ./themes.sh
-Modo CLI:
-Aplica um tema específico passando um caminho absoluto como argumento posicional.
+Modo CLI: Aplica um tema diretamente.
 
 Bash
 ./themes.sh /caminho/para/imagem.png
-5. Integração de Subsistemas (Sincronização Dinâmica)
-Para alcançar a sincronização total do ecossistema, os aplicativos de destino devem ser configurados para referenciar o cache gerado.
+5. Integração de Subsistemas
+CAVA: Gerencia a seção [color] em ~/.config/cava/config.
 
-CAVA (Visualizador de Áudio):
-O motor foca na seção [color] do arquivo ~/.config/cava/config. Ele força gradient = 1 e gradient_count = 2, sobrescrevendo os valores hexadecimais com as cores primária e secundária extraídas.
+Terminal UI: Atualiza a paleta ANSI 0-15. Requer terminais modernos (Kitty, Alacritty, Foot).
 
-Terminal UI (Peaclock / TUI):
-Ferramentas TUI padrão seguem a paleta ANSI 0-15. O motor atualiza estas cores via sequências do Pywal. Certifique-se de que seu emulador de terminal (Kitty, Alacritty, Foot) está configurado para permitir a sobrescrita por sequências de escape OSC.
+Integrações:
 
-Integração com Terceiros (Vesktop / Spicetify):
-Estes aplicativos devem ser configurados para rastrear o cache do Pywal:
+Vencord: Ative o tema Pywal apontando para ~/.cache/wal/colors-vencord.css.
 
-Vencord: Ative o tema Pywal e aponte para ~/.cache/wal/colors-vencord.css.
+Spicetify: Use o esquema de cores Pywal.
 
-Spicetify: Aplique o esquema de cores Pywal para mapear elementos da UI para a paleta JSON extraída.
+6. Automação (Keybinding)
+Hyprland:
 
-6. Automação e Macros
-Para um fluxo de trabalho otimizado, mapeie a execução para um atalho global.
-
-Configuração no Hyprland:
 Bash
-bind = SUPER, B, exec, /caminho/absoluto/para/themes.sh
-Configuração no Sway:
-Bash
-bindsym $mod+b exec /caminho/absoluto/para/themes.sh
-7. Tratamento de Erros e Depuração
-Menu Vazio: Verifique se as imagens estão presentes em ~/theme_CORE/wallpapers/.
+bind = SUPER, B, exec, /caminho/para/Theme-Switcher-/themes.sh
+7. Debugging
+Menu Vazio: Verifique se há imagens em ~/theme_CORE/wallpapers/.
 
-Permissão Negada: Garanta que o usuário tem acesso de escrita no diretório theme_CORE e em ~/.config/cava/.
-
-Cores Inconsistentes: Verifique ~/.cache/wal/colors.json para validar se o backend de extração processou a imagem corretamente.
+Permissão Negada: Garanta acesso de escrita em ~/theme_CORE e ~/.config/cava/.
