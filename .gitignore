@@ -1,0 +1,28 @@
+# =============================================================================
+# REPO:         themes-core-alpha
+# DESCRIPTION:  Gitignore para exclusão de caches locais e ficheiros dinâmicos
+# =============================================================================
+
+# --- WORKSPACE CACHE ---
+# Ignora a pasta de dados gerada no ambiente do utilizador
+theme_CORE/
+theme_CORE/**
+
+# --- LOCAL POINTERS ---
+# Ignora o ponteiro de caminho que é específico de cada máquina
+*.ptr
+core_path.ptr
+
+# --- LOGS & TEMP ---
+*.log
+theme_CORE/logs/
+theme_CORE/temp/
+
+# --- OS SPECIFIC ---
+.DS_Store
+Thumbs.db
+
+# --- SYSTEM CACHE ---
+# Ignora o cache do Pywal se ele for copiado acidentalmente para o repo
+.cache/
+wal/
