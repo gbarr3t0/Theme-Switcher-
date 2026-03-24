@@ -1,120 +1,626 @@
-# Theme-Switcher-: Dynamic Color & Wallpaper Injection for Linux WMs 
+# Theme-Switcher (English & Portuguese (Português-BR))
+## English ver:
+## Portuguese ver below...
 
-English / Portuguese
+## 📌 Overview
 
-English
-1. Project Overview
-The Theme-Switcher- is a modular synchronization engine designed for Linux environments. It implements a centralized "Source of Truth" architecture where an image file is parsed to generate a global Xresources-compliant color palette. This palette is then injected into active process environments, configuration files, and pseudo-terminals (TTY) in real-time.
+**Themes-Core** is a lightweight CLI tool that synchronizes your system theme based on a single wallpaper.
 
-2. System Logic & Architecture
-The engine operates on a multi-stage execution pipeline:
+It uses `pywal` to extract colors and applies them across:
+- terminal
+- window manager / desktop environment
+- UI elements (where supported)
+- cava (optional)
 
-Extraction: Analysis of image hexadecimal data via Haishoku or Magick backends.
+The goal is simple: **consistent theming without manual tweaking**.
 
-Environment Synchronization: Updates session variables for Wayland (Hyprland/Sway) or X11 protocols.
+No daemons. No bloated dependencies. Just a clean, predictable pipeline.
 
-Atomic Patching: Direct manipulation of configuration files (CAVA) using sed stream editing to bypass static color limitations.
+---
 
-TTY Injection: Direct broadcast of escape sequences to all active /dev/pts/ nodes to ensure shell persistence.
+## ✨ Features
 
-3. Deployment & Environment Setup
-The installation process is handled by a universal bootstrap script that manages dependency resolution across multiple package managers (pacman, apt, dnf, zypper).
+- 🎨 Wallpaper-based dynamic theming
+- ⚡ Fast execution (no background services)
+- 🧠 Automatic WM/DE detection
+- 🖥️ Works on X11 and Wayland
+- 🔁 Live terminal color refresh
+- 🎵 Cava integration
+- 📦 Cross-distro support
+- 🧩 Modular structure
 
-Installation Procedure:
+---
 
-Bash
+## 🧩 Supported Environments
+
+Works across most setups:
+
+- Hyprland  
+- Sway  
+- i3  
+- BSPWM  
+- Openbox  
+- GNOME (partial support)  
+- KDE Plasma (partial support)  
+- XFCE (partial support)  
+
+Fallback logic is applied for unsupported environments.
+
+---
+
+## 📦 Installation
+
+Clone the repository:
+
+```bash
 git clone https://github.com/gbarr3t0/Theme-Switcher-.git
 cd Theme-Switcher-
+```
+
+Run the installer:
+
+```bash
 chmod +x install.sh
 ./install.sh
-Filesystem Structure:
-Upon execution, the script initializes a persistent workspace (See STRUCTURE.md for details):
+```
 
-~/theme_CORE/wallpapers/: Primary ingress directory for source assets.
+### What the installer does
 
-~/theme_CORE/cache/: Storage for generated CSS and metadata.
+- Detects your package manager
+- Installs required dependencies (`pywal`, `jq`, `file`)
+- Installs optional tools (`rofi`, `cava`, wallpaper backends)
+- Installs the binary to:
 
-~/.config/themes/core_path.ptr: Pointer file for absolute path resolution.
+```
+~/.local/bin/themes-core
+```
 
-4. Operational Usage
-Interactive Mode: Invokes a dynamic menu (Wofi or Rofi) to select assets.
+Make sure your PATH includes:
 
-Bash
-./themes.sh
-CLI Mode: Applies a specific theme via absolute path.
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
 
-Bash
-./themes.sh /path/to/image.png
-5. Subsystem Integration (Dynamic Sync)
-CAVA: Targets the [color] section of ~/.config/cava/config. Enforces gradient = 1 and gradient_count = 2.
+---
 
-Terminal UI: Updates ANSI 0-15 palette via Pywal sequences. Supports Kitty, Alacritty, and Foot.
+## 🚀 Usage
 
-Third-Party:
+Open the theme selector:
 
-Vencord: Enable Pywal theme and link to ~/.cache/wal/colors-vencord.css.
+```bash
+themes-core --menu
+```
 
-Spicetify: Apply Pywal color scheme to map UI elements.
--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Apply a random wallpaper:
 
-Português
-1. Visão Geral do Projeto
-O Theme-Switcher- é um motor de sincronização modular para Linux. Ele utiliza uma arquitetura de "Fonte Única de Verdade", onde uma imagem é processada para gerar uma paleta de cores global injetada em processos ativos, arquivos de configuração e terminais (TTY) em tempo real.
+```bash
+themes-core --random
+```
 
-2. Lógica e Arquitetura
-Extração: Análise de cores via Haishoku ou Magick.
+Apply a specific wallpaper:
 
-Sincronização: Atualiza variáveis de sessão para Wayland (Hyprland/Sway) ou X11.
+```bash
+themes-core --apply /path/to/image.png
+```
 
-Patching Atômico: Manipulação via sed no arquivo do CAVA para contornar limites de cores estáticas.
+List available wallpapers:
 
-Injeção TTY: Transmissão de sequências de escape para todos os /dev/pts/ ativos.
+```bash
+themes-core --list
+```
 
-3. Instalação e Configuração
-O script de instalação resolve dependências automaticamente em distros baseadas em Arch, Debian, Fedora ou OpenSUSE.
+---
 
-Procedimento de Instalação:
+## ⚙️ Directory Structure
 
-Bash
+```
+~/.local/share/themes-core/
+├── wallpapers/
+├── cache/
+├── history/
+└── backups/
+```
+
+Override root directory:
+
+```bash
+themes-core --root /custom/path
+```
+
+---
+
+## ⚙️ How It Works
+
+The workflow is straightforward:
+
+1. Wallpaper is selected  
+2. `pywal` generates a color palette  
+3. System updates:
+   - wallpaper applied  
+   - terminal colors updated  
+   - WM/DE styling adjusted  
+   - cava synced (if running)  
+4. Terminal colors are broadcast to active sessions  
+
+Everything runs in a single execution — no background services.
+
+---
+
+## ⚠️ Notes
+
+- Some terminals may require restart depending on implementation  
+- Wayland support depends on available tools (`swww`, etc.)  
+- DE integrations are best-effort with fallback  
+
+---
+
+## 🛠️ Keybind Example
+
+**Hyprland**
+```ini
+bind = SUPER, T, exec, themes-core --menu
+```
+
+**i3**
+```bash
+bindsym $mod+t exec --no-startup-id themes-core --menu
+```
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── install.sh
+├── themes.sh
+├── README.md
+├── STRUCTURE.md
+└── .gitignore
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome:
+
+- fork the repository  
+- create a branch  
+- submit a pull request  
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+## 👤 Author
+
+Developed by gbarr3t0
+
+---
+
+## ⭐ Final Notes
+
+This project focuses on practical theming without overengineering.
+
+If you want a fast, consistent and reproducible desktop setup, this tool gets the job done.
+
+Português ## 📌 Overview
+
+**Themes-Core** is a lightweight CLI tool that synchronizes your system theme based on a single wallpaper.
+
+It uses `pywal` to extract colors and applies them across:
+- terminal
+- window manager / desktop environment
+- UI elements (where supported)
+- cava (optional)
+
+The goal is simple: **consistent theming without manual tweaking**.
+
+No daemons. No bloated dependencies. Just a clean, predictable pipeline.
+
+---
+
+## ✨ Features
+
+- 🎨 Wallpaper-based dynamic theming
+- ⚡ Fast execution (no background services)
+- 🧠 Automatic WM/DE detection
+- 🖥️ Works on X11 and Wayland
+- 🔁 Live terminal color refresh
+- 🎵 Cava integration
+- 📦 Cross-distro support
+- 🧩 Modular structure
+
+---
+
+## 🧩 Supported Environments
+
+Works across most setups:
+
+- Hyprland  
+- Sway  
+- i3  
+- BSPWM  
+- Openbox  
+- GNOME (partial support)  
+- KDE Plasma (partial support)  
+- XFCE (partial support)  
+
+Fallback logic is applied for unsupported environments.
+
+---
+
+## 📦 Installation
+
+Clone the repository:
+
+```bash
 git clone https://github.com/gbarr3t0/Theme-Switcher-.git
 cd Theme-Switcher-
+```
+
+Run the installer:
+
+```bash
 chmod +x install.sh
 ./install.sh
-Estrutura de Arquivos:
-O script inicializa os seguintes diretórios (Detalhes em STRUCTURE.md):
+```
 
-~/theme_CORE/wallpapers/: Coloque suas imagens aqui.
+### What the installer does
 
-~/theme_CORE/cache/: Armazena CSS e metadados.
+- Detects your package manager
+- Installs required dependencies (`pywal`, `jq`, `file`)
+- Installs optional tools (`rofi`, `cava`, wallpaper backends)
+- Installs the binary to:
 
-~/.config/themes/core_path.ptr: Arquivo de ponteiro para caminhos absolutos.
+```
+~/.local/bin/themes-core
+```
 
-4. Uso Operacional
-Modo Interativo: Abre o menu (Wofi ou Rofi) para seleção.
+Make sure your PATH includes:
 
-Bash
-./themes.sh
-Modo CLI: Aplica um tema diretamente.
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
 
-Bash
-./themes.sh /caminho/para/imagem.png
-5. Integração de Subsistemas
-CAVA: Gerencia a seção [color] em ~/.config/cava/config.
+---
 
-Terminal UI: Atualiza a paleta ANSI 0-15. Requer terminais modernos (Kitty, Alacritty, Foot).
+## 🚀 Usage
 
-Integrações:
+Open the theme selector:
 
-Vencord: Ative o tema Pywal apontando para ~/.cache/wal/colors-vencord.css.
+```bash
+themes-core --menu
+```
 
-Spicetify: Use o esquema de cores Pywal.
+Apply a random wallpaper:
 
-6. Automação (Keybinding)
-Hyprland:
+```bash
+themes-core --random
+```
 
-Bash
-bind = SUPER, B, exec, /caminho/para/Theme-Switcher-/themes.sh
-7. Debugging
-Menu Vazio: Verifique se há imagens em ~/theme_CORE/wallpapers/.
+Apply a specific wallpaper:
 
-Permissão Negada: Garanta acesso de escrita em ~/theme_CORE e ~/.config/cava/.
+```bash
+themes-core --apply /path/to/image.png
+```
+
+List available wallpapers:
+
+```bash
+themes-core --list
+```
+
+---
+
+## ⚙️ Directory Structure
+
+```
+~/.local/share/themes-core/
+├── wallpapers/
+├── cache/
+├── history/
+└── backups/
+```
+
+Override root directory:
+
+```bash
+themes-core --root /custom/path
+```
+
+---
+
+## ⚙️ How It Works
+
+The workflow is straightforward:
+
+1. Wallpaper is selected  
+2. `pywal` generates a color palette  
+3. System updates:
+   - wallpaper applied  
+   - terminal colors updated  
+   - WM/DE styling adjusted  
+   - cava synced (if running)  
+4. Terminal colors are broadcast to active sessions  
+
+Everything runs in a single execution — no background services.
+
+---
+
+## ⚠️ Notes
+
+- Some terminals may require restart depending on implementation  
+- Wayland support depends on available tools (`swww`, etc.)  
+- DE integrations are best-effort with fallback  
+
+---
+
+## 🛠️ Keybind Example
+
+**Hyprland**
+```ini
+bind = SUPER, T, exec, themes-core --menu
+```
+
+**i3**
+```bash
+bindsym $mod+t exec --no-startup-id themes-core --menu
+```
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── install.sh
+├── themes.sh
+├── README.md
+├── STRUCTURE.md
+└── .gitignore
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome:
+
+- fork the repository  
+- create a branch  
+- submit a pull request  
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+## 👤 Author
+
+Developed by gbarr3t0
+
+---
+
+## ⭐ Final Notes
+
+This project focuses on practical theming without overengineering.
+
+If you want a fast, consistent and reproducible desktop setup, this tool gets the job done.
+
+Português -------------------------------------------------------------------------------------------------------
+
+## 📌 Visão Geral
+
+**Themes-Core** é uma ferramenta CLI leve que sincroniza o tema do seu sistema com base em um único wallpaper.
+
+Ela utiliza `pywal` para extrair cores e aplicá-las em:
+- terminal
+- gerenciador de janelas / ambiente de desktop
+- elementos de UI (quando suportado)
+- cava (opcional)
+
+O objetivo é simples: **tematização consistente sem ajustes manuais**.
+
+Sem daemons. Sem dependências pesadas. Apenas um fluxo limpo e previsível.
+
+---
+
+## ✨ Funcionalidades
+
+- 🎨 Tematização dinâmica baseada em wallpaper
+- ⚡ Execução rápida (sem serviços em background)
+- 🧠 Detecção automática de WM/DE
+- 🖥️ Funciona em X11 e Wayland
+- 🔁 Atualização ao vivo das cores do terminal
+- 🎵 Integração com Cava
+- 📦 Suporte a múltiplas distros
+- 🧩 Estrutura modular
+
+---
+
+## 🧩 Ambientes Suportados
+
+Funciona na maioria dos setups:
+
+- Hyprland  
+- Sway  
+- i3  
+- BSPWM  
+- Openbox  
+- GNOME (suporte parcial)  
+- KDE Plasma (suporte parcial)  
+- XFCE (suporte parcial)  
+
+Uma lógica de fallback é aplicada para ambientes não suportados.
+
+---
+
+## 📦 Instalação
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/gbarr3t0/Theme-Switcher-.git
+cd Theme-Switcher-
+```
+
+Execute o instalador:
+
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+### O que o instalador faz
+
+- Detecta seu gerenciador de pacotes
+- Instala dependências obrigatórias (`pywal`, `jq`, `file`)
+- Instala ferramentas opcionais (`rofi`, `cava`, backends de wallpaper)
+- Instala o binário em:
+
+```
+~/.local/bin/themes-core
+```
+
+Certifique-se de que seu PATH inclui:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+---
+
+## 🚀 Uso
+
+Abrir o seletor de temas:
+
+```bash
+themes-core --menu
+```
+
+Aplicar um wallpaper aleatório:
+
+```bash
+themes-core --random
+```
+
+Aplicar um wallpaper específico:
+
+```bash
+themes-core --apply /path/to/image.png
+```
+
+Listar wallpapers disponíveis:
+
+```bash
+themes-core --list
+```
+
+---
+
+## ⚙️ Estrutura de Diretórios
+
+```
+~/.local/share/themes-core/
+├── wallpapers/
+├── cache/
+├── history/
+└── backups/
+```
+
+Sobrescrever diretório raiz:
+
+```bash
+themes-core --root /custom/path
+```
+
+---
+
+## ⚙️ Como Funciona
+
+O fluxo é simples:
+
+1. Um wallpaper é selecionado  
+2. O `pywal` gera uma paleta de cores  
+3. O sistema é atualizado:
+   - wallpaper aplicado  
+   - cores do terminal atualizadas  
+   - estilos do WM/DE ajustados  
+   - cava sincronizado (se estiver em execução)  
+4. As cores do terminal são propagadas para sessões ativas  
+
+Tudo ocorre em uma única execução — sem serviços em background.
+
+---
+
+## ⚠️ Observações
+
+- Alguns terminais podem exigir reinício dependendo da implementação  
+- O suporte a Wayland depende das ferramentas disponíveis (`swww`, etc.)  
+- Integrações com DE são best-effort, sempre com fallback  
+
+---
+
+## 🛠️ Exemplo de Keybind
+
+**Hyprland**
+```ini
+bind = SUPER, T, exec, themes-core --menu
+```
+
+**i3**
+```bash
+bindsym $mod+t exec --no-startup-id themes-core --menu
+```
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+.
+├── install.sh
+├── themes.sh
+├── README.md
+├── STRUCTURE.md
+└── .gitignore
+```
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas:
+
+- faça um fork do repositório  
+- crie uma branch  
+- envie um pull request  
+
+---
+
+## 📄 Licença
+
+Licença MIT
+
+---
+
+## 👤 Autor
+
+Desenvolvido por gbarr3t0
+
+---
+
+## ⭐ Observações Finais
+
+Este projeto foca em tematização prática sem overengineering.
+
+Se você quer um setup rápido, consistente e reproduzível, essa ferramenta resolve.
