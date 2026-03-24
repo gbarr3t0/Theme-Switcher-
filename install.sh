@@ -1,80 +1,152 @@
 #!/usr/bin/env bash
 
 # =============================================================================
-# REPO:         themes-core-alpha
-# MODULE:       Universal Dependency Resolver
-# DESCRIPTION:  Multi-distro support (Arch, Debian/Ubuntu, Fedora, SUSE)
+# THEMES-CORE INSTALLER
+# Cross-Distro Dependency Installer + Setup
 # =============================================================================
 
 set -euo pipefail
 
-# --- CONFIGURATION ---
-readonly SCRIPT_SOURCE="themes.sh"
+SCRIPT_NAME="themes-core-installer"
 
-# --- RUNTIME STACK ---
-# Adicionado rofi como fallback para sistemas X11
-readonly DEPS=("python-pywal" "swww" "jq" "imagemagick" "wofi" "rofi" "cava")
+# --- UTILS ---
 
-echo "[BOOTSTRAP] Initializing Universal Environment Check..."
+log() {
+    echo "[INFO] $1"
+}
 
-# --- PACKAGE MANAGER DETECTOR ---
-install_logic() {
-    local pkgs=("$@")
-    
-    if command -v pacman &>/dev/null; then
-        echo "[OS] Arch-based detected."
-        sudo pacman -S --needed "${pkgs[@]}"
-    elif command -v apt-get &>/dev/null; then
-        echo "[OS] Debian/Ubuntu-based detected."
-        sudo apt-get update && sudo apt-get install -y "${pkgs[@]}"
-    elif command -v dnf &>/dev/null; then
-        echo "[OS] Fedora-based detected."
-        sudo dnf install -y "${pkgs[@]}"
-    elif command -v zypper &>/dev/null; then
-        echo "[OS] OpenSUSE-based detected."
-        sudo zypper install -y "${pkgs[@]}"
+success() {
+    echo "[OK] $1"
+}
+
+error() {
+    echo "[ERROR] $1"
+    exit 1
+}
+
+command_exists() {
+    command -v "$1" &>/dev/null
+}
+
+# --- DETECT PACKAGE MANAGER ---
+
+detect_pm() {
+    if command_exists pacman; then
+        echo "pacman"
+    elif command_exists apt; then
+        echo "apt"
+    elif command_exists dnf; then
+        echo "dnf"
+    elif command_exists zypper; then
+        echo "zypper"
     else
-        echo "[ERROR] Unsupported Package Manager. Install manually: ${pkgs[*]}"
-        exit 1
+        echo "unknown"
     fi
 }
 
-# --- VALIDATION ENGINE ---
-resolve_dependencies() {
-    local missing=()
-    for item in "${DEPS[@]}"; do
-        if ! command -v "$item" &>/dev/null; then
-            # Fix de nomenclatura para base Debian/Ubuntu
-            if [[ "$item" == "python-pywal" ]] && command -v apt-get &>/dev/null; then
-                missing+=("python3-pywal")
-            else
-                missing+=("$item")
-            fi
-        fi
-    done
+# --- INSTALL FUNCTIONS ---
 
-    if [ ${#missing[@]} -eq 0 ]; then
-        echo "[SUCCESS] Environment is already compliant."
-    else
-        echo "[ACTION] Missing components: ${missing[*]}"
-        read -p "[PROMPT] Auto-install detected dependencies? [y/N]: " confirm
-        if [[ "$confirm" =~ ^[yY]$ ]]; then
-            install_logic "${missing[@]}"
-        fi
+install_pacman() {
+    sudo pacman -Sy --noconfirm \
+        python-pywal jq file \
+        feh nitrogen \
+        rofi wofi \
+        cava
+}
+
+install_apt() {
+    sudo apt update
+    sudo apt install -y \
+        python3-pip jq file \
+        feh nitrogen \
+        rofi \
+        cava
+
+    pip3 install pywal
+}
+
+install_dnf() {
+    sudo dnf install -y \
+        python3-pip jq file \
+        feh nitrogen \
+        rofi \
+        cava
+
+    pip3 install pywal
+}
+
+install_zypper() {
+    sudo zypper install -y \
+        python3-pip jq file \
+        feh nitrogen \
+        rofi \
+        cava
+
+    pip3 install pywal
+}
+
+# --- OPTIONAL (WAYLAND) ---
+
+install_wayland_tools() {
+    if command_exists pacman; then
+        sudo pacman -S --noconfirm swww
+    elif command_exists apt; then
+        sudo apt install -y swww || true
+    elif command_exists dnf; then
+        sudo dnf install -y swww || true
     fi
 }
+
+# --- COPY SCRIPT ---
+
+install_script() {
+    local target="$HOME/.local/bin/themes-core"
+
+    mkdir -p "$HOME/.local/bin"
+    cp themes-core-v4.sh "$target"
+    chmod +x "$target"
+
+    success "Script instalado em $target"
+}
+
+# --- MAIN ---
 
 main() {
-    resolve_dependencies
-    
-    if [[ -f "$SCRIPT_SOURCE" ]]; then
-        chmod +x "$SCRIPT_SOURCE"
-        echo "[CHMOD] $SCRIPT_SOURCE is now executable."
-    else
-        echo "[WARNING] Source script $SCRIPT_SOURCE not found in current directory."
-    fi
-    
-    echo "[DONE] Setup finished."
+    log "Detectando gerenciador de pacotes..."
+
+    PM=$(detect_pm)
+
+    case "$PM" in
+        pacman)
+            log "Usando pacman (Arch-based)"
+            install_pacman
+            ;;
+        apt)
+            log "Usando apt (Debian/Ubuntu)"
+            install_apt
+            ;;
+        dnf)
+            log "Usando dnf (Fedora)"
+            install_dnf
+            ;;
+        zypper)
+            log "Usando zypper (openSUSE)"
+            install_zypper
+            ;;
+        *)
+            error "Gerenciador de pacotes não suportado"
+            ;;
+    esac
+
+    log "Instalando ferramentas Wayland (se disponível)..."
+    install_wayland_tools
+
+    log "Instalando script..."
+    install_script
+
+    success "Instalação concluída com sucesso!"
+    echo
+    echo "Use: themes-core --menu"
 }
 
 main "$@"
